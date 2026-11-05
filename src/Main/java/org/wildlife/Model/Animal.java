@@ -1,6 +1,6 @@
 package org.wildlife.Model;
-
 import java.util.Set;
+import static org.wildlife.Model.Types.*;
 
 public abstract class Animal {
     public abstract AnimalType type();
