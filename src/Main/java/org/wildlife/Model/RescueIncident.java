@@ -37,4 +37,25 @@ public final class RescueIncident {
         this.requiredSkills = Set.copyOf(skills);
         this.requiredEquipment = Set.copyOf(equipment);
     }
+    public String id() { return id; }
+    public ReportRequest report() { return report; }
+    public Animal animal() { return animal; }
+    public Set<Skill> requiredSkills() { return requiredSkills; }
+    public Set<Equipment> requiredEquipment() { return requiredEquipment; }
+    public Instant createdAt() { return createdAt; }
+    public int priorityScore() { return priorityScore; }
+    public Priority priority() { return Priority.fromScore(priorityScore); }
+    public IncidentStatus status() { return status; }
+    public String teamId() { return teamId; }
+    public boolean active() { return status == IncidentStatus.ASSIGNED || status == IncidentStatus.IN_PROGRESS; }
+    public RescueIncident assign(String team) {
+        if (status != IncidentStatus.PENDING_ASSIGNMENT) throw new ValidationException("Incident is already assigned or completed.");
+        return new RescueIncident(id, report, createdAt, priorityScore, IncidentStatus.ASSIGNED, team);
+    }
+    public RescueIncident advance(IncidentStatus next) {
+        boolean allowed = status == IncidentStatus.ASSIGNED && next == IncidentStatus.IN_PROGRESS
+                || status == IncidentStatus.IN_PROGRESS && next == IncidentStatus.COMPLETED;
+        if (!allowed) throw new ValidationException("Allowed transitions: ASSIGNED -> IN_PROGRESS -> COMPLETED.");
+        return new RescueIncident(id, report, createdAt, priorityScore, next, teamId);
+    }
 }
