@@ -11,4 +11,5 @@ public record Location(String description, double x, double y, Risk risk) {
         Checks.coordinate(y);
         Objects.requireNonNull(risk, "Location risk");
     }
+    public double distanceTo(Location other) { return Math.hypot(x - other.x, y - other.y); }
 }
