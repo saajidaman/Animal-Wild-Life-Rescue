@@ -11,4 +11,8 @@ public final class TeamMatcher {
                 && team.skills().containsAll(incident.requiredSkills())
                 && team.equipment().containsAll(incident.requiredEquipment());
     }
+    public boolean eligible(RescueIncident incident, RescueTeam team, State state) {
+        return team.operational() && state.workload(team.id()) < team.maxIncidents() && compatible(incident, team);
+    }
+
 }
