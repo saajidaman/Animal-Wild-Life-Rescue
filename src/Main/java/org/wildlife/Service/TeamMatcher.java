@@ -14,5 +14,10 @@ public final class TeamMatcher {
     public boolean eligible(RescueIncident incident, RescueTeam team, State state) {
         return team.operational() && state.workload(team.id()) < team.maxIncidents() && compatible(incident, team);
     }
-
+    public List<Match> find(RescueIncident incident, State state) {
+        return state.teams().values().stream().filter(t -> eligible(incident, t, state))
+                .map(t -> new Match(t, state.workload(t.id()), t.location().distanceTo(incident.report().location())))
+                .sorted(Comparator.comparingDouble((Match m) -> (double) m.workload() / m.team().maxIncidents())
+                        .thenComparingDouble(Match::distanceKm).thenComparing(m -> m.team().id())).toList();
+    }
 }
