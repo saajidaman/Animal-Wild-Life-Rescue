@@ -39,6 +39,7 @@ public final class CsvFileManager  {
         return new IOException(file + " record " + (row + 1) + ": " + cause.getMessage(), cause);
     }
 
+    private static <E extends Enum<E>> E value(Class<E> type, String text) { return Enum.valueOf(type, text); }
 
 
 
