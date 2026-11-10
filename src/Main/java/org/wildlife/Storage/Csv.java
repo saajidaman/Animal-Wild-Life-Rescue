@@ -22,6 +22,23 @@ public final class Csv {
                         index++;
                     } else state = 3;
                 } else field.append(c);
+            } else if (c == ',' || c == '\n' || c == '\r') {
+                row.add(field.toString());
+                field.setLength(0);
+                state = 0;
+                if (c != ',') {
+                    rows.add(List.copyOf(row));
+                    row.clear();
+                    if (c == '\r' && index + 1 < input.length() && input.charAt(index + 1) == '\n') index++;
+                }
+            } else if (state == 3) {
+                throw new IOException("Unexpected character after closing CSV quote at character " + index);
+            } else if (c == '"') {
+                if (state != 0) throw new IOException("Quote inside unquoted CSV field at character " + index);
+                state = 2;
+            } else {
+                field.append(c);
+                state = 1;
             }
         }
 
