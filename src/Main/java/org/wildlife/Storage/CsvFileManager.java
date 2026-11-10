@@ -53,6 +53,26 @@ public final class CsvFileManager  {
         throw new ValidationException("Boolean must be true or false.");
     }
 
+    public static void validateState(State state) {
+        TeamMatcher matcher = new TeamMatcher(); PriorityCalculator calculator = new PriorityCalculator();
+        for (Map.Entry<String, RescueIncident> entry : state.incidents().entrySet()) {
+            RescueIncident incident = entry.getValue();
+            if (!entry.getKey().equals(incident.id())) throw new ValidationException("Incident map key differs from ID.");
+            if (incident.priorityScore() != calculator.calculate(incident.report())) throw new ValidationException("Invalid priority information.");
+            if (incident.status() != IncidentStatus.PENDING_ASSIGNMENT) {
+                RescueTeam team = state.teams().get(incident.teamId());
+                if (team == null) throw new ValidationException("Assigned team does not exist: " + incident.teamId());
+                if (incident.active() && (!team.operational() || !matcher.compatible(incident, team)))
+                    throw new ValidationException("Invalid active assignment for incident: " + incident.id());
+            }
+        }
+        for (Map.Entry<String, RescueTeam> entry : state.teams().entrySet()) {
+            if (!entry.getKey().equals(entry.getValue().id())) throw new ValidationException("Team map key differs from ID.");
+            if (state.workload(entry.getKey()) > entry.getValue().maxIncidents())
+                throw new ValidationException("Team capacity exceeded: " + entry.getKey());
+        }
+    }
+
 
 
 
