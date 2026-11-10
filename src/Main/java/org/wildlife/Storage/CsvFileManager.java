@@ -73,6 +73,8 @@ public final class CsvFileManager  {
         }
     }
 
+
+
     private static void writeForced(Path file, String text) throws IOException {
         try (FileChannel channel = FileChannel.open(file, CREATE, WRITE, TRUNCATE_EXISTING)) {
             ByteBuffer bytes = StandardCharsets.UTF_8.encode(text);
@@ -107,6 +109,9 @@ public final class CsvFileManager  {
         return Csv.encode(rows);
     }
 
+    private static String spreadsheetSafe(String value) {
+        return value.matches("^[=+@-].*") ? "'" + value : value;
+    }
 
 
 }
