@@ -72,6 +72,7 @@ public final class CsvFileManager  {
                 throw new ValidationException("Team capacity exceeded: " + entry.getKey());
         }
     }
+
     private static void writeForced(Path file, String text) throws IOException {
         try (FileChannel channel = FileChannel.open(file, CREATE, WRITE, TRUNCATE_EXISTING)) {
             ByteBuffer bytes = StandardCharsets.UTF_8.encode(text);
@@ -79,6 +80,12 @@ public final class CsvFileManager  {
             channel.force(true);
         }
     }
+
+    private static String join(Collection<? extends Enum<?>> values) {
+        return values.stream().map(Enum::name).sorted().collect(Collectors.joining(";"));
+    }
+
+
 
 }
 
