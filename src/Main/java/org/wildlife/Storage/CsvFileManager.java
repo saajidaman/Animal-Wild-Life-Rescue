@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class CsvFileManager {
+public final class CsvFileManager  {
     public static final List<String> TEAM_HEADER = List.of("team_id", "name", "members", "animal_types", "skills",
             "equipment", "location", "x", "y", "status", "max_incidents");
     public static final List<String> INCIDENT_HEADER = List.of("incident_id", "animal_type", "condition", "location", "x", "y",
@@ -46,6 +46,11 @@ public final class CsvFileManager {
         for (String part : text.split(";", -1)) if (!result.add(value(type, part)))
             throw new ValidationException("Duplicate list value: " + part);
         return result;
+    }
+
+    private static boolean bool(String value) {
+        if (value.equals("true")) return true; if (value.equals("false")) return false;
+        throw new ValidationException("Boolean must be true or false.");
     }
 
 
