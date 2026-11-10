@@ -1,18 +1,20 @@
 package org.wildlife.Storage;
 
-
-
 import static org.wildlife.Model.Types.*;
 import org.wildlife.Model.*;
 import org.wildlife.Service.*;
 
+import static java.nio.file.StandardOpenOption.*;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class CsvFileManager  {
     public static final List<String> TEAM_HEADER = List.of("team_id", "name", "members", "animal_types", "skills",
@@ -26,5 +28,15 @@ public final class CsvFileManager  {
         this.root = root.toAbsolutePath().normalize();
         Files.createDirectories(this.root);
     }
+    private static List<List<String>> read(Path file, List<String> header) throws IOException {
+        List<List<String>> rows = Csv.parse(Files.readString(file, StandardCharsets.UTF_8));
+        if (rows.isEmpty() || !rows.get(0).equals(header)) throw new IOException("Invalid or missing header: " + file);
+        for (int i = 1; i < rows.size(); i++) if (rows.get(i).size() != header.size())
+            throw new IOException(file + " record " + (i + 1) + ": expected " + header.size() + " columns.");
+        return rows;
+    }
+
+
+
 }
 
