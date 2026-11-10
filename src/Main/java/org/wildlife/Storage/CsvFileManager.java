@@ -85,6 +85,16 @@ public final class CsvFileManager  {
         return values.stream().map(Enum::name).sorted().collect(Collectors.joining(";"));
     }
 
+    public static String teamsCsv(State state) {
+        List<List<String>> rows = new ArrayList<>(); rows.add(TEAM_HEADER);
+        for (RescueTeam team : state.teams().values()) rows.add(List.of(team.id(), team.name(), String.join(";", team.members()),
+                join(team.animalTypes()), join(team.skills()), join(team.equipment()), team.location().description(),
+                Double.toString(team.location().x()), Double.toString(team.location().y()), team.status(state.workload(team.id())).name(),
+                Integer.toString(team.maxIncidents())));
+        return Csv.encode(rows);
+    }
+
+
 
 
 }
