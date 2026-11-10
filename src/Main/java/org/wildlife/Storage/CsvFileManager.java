@@ -94,6 +94,18 @@ public final class CsvFileManager  {
         return Csv.encode(rows);
     }
 
+    public static String incidentsCsv(State state) {
+        List<List<String>> rows = new ArrayList<>(); rows.add(INCIDENT_HEADER);
+        for (RescueIncident i : state.incidents().values()) {
+            ReportRequest r = i.report();
+            rows.add(List.of(i.id(), i.animal().type().name(), r.condition().name(), r.location().description(),
+                    Double.toString(r.location().x()), Double.toString(r.location().y()), r.location().risk().name(),
+                    Integer.toString(r.animalCount()), Boolean.toString(r.immediateDanger()), join(i.requiredSkills()), join(i.requiredEquipment()),
+                    r.reporter().name(), r.reporter().contact(), i.createdAt().toString(), Integer.toString(i.priorityScore()),
+                    i.priority().name(), i.status().name(), i.teamId()));
+        }
+        return Csv.encode(rows);
+    }
 
 
 
