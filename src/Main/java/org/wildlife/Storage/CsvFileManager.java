@@ -35,6 +35,10 @@ public final class CsvFileManager  {
             throw new IOException(file + " record " + (i + 1) + ": expected " + header.size() + " columns.");
         return rows;
     }
+    private static IOException bad(Path file, int row, RuntimeException cause) {
+        return new IOException(file + " record " + (row + 1) + ": " + cause.getMessage(), cause);
+    }
+
 
 
 
