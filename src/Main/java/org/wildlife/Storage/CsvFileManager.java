@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class CsvFileManager  {
+public final class CsvFileManager {
     public static final List<String> TEAM_HEADER = List.of("team_id", "name", "members", "animal_types", "skills",
             "equipment", "location", "x", "y", "status", "max_incidents");
     public static final List<String> INCIDENT_HEADER = List.of("incident_id", "animal_type", "condition", "location", "x", "y",
@@ -40,6 +40,14 @@ public final class CsvFileManager  {
     }
 
     private static <E extends Enum<E>> E value(Class<E> type, String text) { return Enum.valueOf(type, text); }
+    private static <E extends Enum<E>> Set<E> values(Class<E> type, String text) {
+        if (text.isEmpty()) return Set.of();
+        Set<E> result = EnumSet.noneOf(type);
+        for (String part : text.split(";", -1)) if (!result.add(value(type, part)))
+            throw new ValidationException("Duplicate list value: " + part);
+        return result;
+    }
+
 
 
 
