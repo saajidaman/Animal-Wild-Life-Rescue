@@ -41,7 +41,11 @@ public final class Csv {
                 state = 1;
             }
         }
-
+        if (state == 2) throw new IOException("Unclosed quoted CSV field.");
+        if (state != 0 || field.length() > 0 || !row.isEmpty()) {
+            row.add(field.toString());
+            rows.add(List.copyOf(row));
+        }
         return List.copyOf(rows);
     }
 }
