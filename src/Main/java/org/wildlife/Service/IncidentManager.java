@@ -56,5 +56,10 @@ public final class IncidentManager {
         LOG.info("Reported " + id + " " + incident.priority());
         return incident;
     }
+    public synchronized void register(RescueTeam team) throws IOException {
+        if (state.teams().containsKey(team.id())) throw new ValidationException("Duplicate team ID: " + team.id());
+        Map<String, RescueTeam> teams = new LinkedHashMap<>(state.teams()); teams.put(team.id(), team);
+        commit(new State(state.incidents(), teams)); LOG.info("Registered team " + team.id());
+    }
 
 }
