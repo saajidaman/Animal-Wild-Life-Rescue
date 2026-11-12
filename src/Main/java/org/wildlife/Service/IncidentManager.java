@@ -47,4 +47,14 @@ public final class IncidentManager {
         commit(new State(incidents, state.teams()));
     }
 
+    public synchronized RescueIncident report(ReportRequest request) throws IOException {
+        String id;
+        do { id = "INC-" + UUID.randomUUID(); } while (state.incidents().containsKey(id));
+        RescueIncident incident = new RescueIncident(id, request, Instant.now(), calculator.calculate(request),
+                IncidentStatus.PENDING_ASSIGNMENT, "");
+        replace(incident);
+        LOG.info("Reported " + id + " " + incident.priority());
+        return incident;
+    }
+
 }
