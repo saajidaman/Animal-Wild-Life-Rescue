@@ -34,5 +34,8 @@ public record RescueTeam(String id, String name, List<String> members, Set<Anima
     public TeamStatus status(int activeCount) {
         return !operational ? TeamStatus.UNAVAILABLE : activeCount > 0 ? TeamStatus.ASSIGNED : TeamStatus.AVAILABLE;
     }
+    public RescueTeam withOperational(boolean value) {
+        return new RescueTeam(id, name, members, animalTypes, skills, equipment, location, value, maxIncidents);
+    }
 
 }
