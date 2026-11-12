@@ -37,4 +37,9 @@ public final class IncidentManager {
         return team;
     }
 
+    private void commit(State next) throws IOException {
+        // Persist first. IOException leaves the old in-memory snapshot intact.
+        repository.save(next); state = next;
+    }
+
 }
