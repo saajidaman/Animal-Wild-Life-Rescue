@@ -1,13 +1,13 @@
 package org.wildlife.Service;
 
 import java.io.IOException;
-
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 import org.wildlife.Model.*;
 import org.wildlife.Storage.StateStorage;
-
+import static org.wildlife.Model.Types.*;
 
 /** One application service owns atomic mutations; searches operate on immutable snapshots. */
 public final class IncidentManager {
@@ -22,5 +22,6 @@ public final class IncidentManager {
     public IncidentManager(StateStorage repository) throws IOException {
         this.repository = Objects.requireNonNull(repository); this.state = repository.load();
     }
+    public synchronized State snapshot() { return state; }
 
 }
