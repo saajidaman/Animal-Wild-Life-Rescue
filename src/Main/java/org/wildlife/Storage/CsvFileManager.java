@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public final class CsvFileManager  {
+public final class CsvFileManager implements StateStorage {
     public static final List<String> TEAM_HEADER = List.of("team_id", "name", "members", "animal_types", "skills",
             "equipment", "location", "x", "y", "status", "max_incidents");
     public static final List<String> INCIDENT_HEADER = List.of("incident_id", "animal_type", "condition", "location", "x", "y",
@@ -73,7 +73,70 @@ public final class CsvFileManager  {
         }
     }
 
-
+    @Override
+    public synchronized State load() throws IOException {
+        Path source = root;
+        boolean committed = Files.exists(root.resolve("CURRENT"));
+        if (committed) {
+            String generation = Files.readString(root.resolve("CURRENT"), StandardCharsets.UTF_8).trim();
+            if (!generation.matches("snapshot-[a-f0-9-]{36}"))
+                throw new IOException("Invalid CURRENT snapshot pointer.");
+            source = root.resolve("snapshots").resolve(generation);
+        }
+        Path teamsFile = source.resolve("teams.csv"), incidentsFile = source.resolve("incidents.csv");
+        if (!committed && !Files.exists(teamsFile) && !Files.exists(incidentsFile)) return State.empty();
+        if (!Files.isRegularFile(teamsFile) || !Files.isRegularFile(incidentsFile))
+            throw new IOException("Both teams.csv and incidents.csv must exist in " + source);
+        Map<String, RescueTeam> teams = new LinkedHashMap<>();
+        Map<String, TeamStatus> declaredStatus = new HashMap<>();
+        List<List<String>> rows = read(teamsFile, TEAM_HEADER);
+        for (int row = 1; row < rows.size(); row++) {
+            List<String> v = rows.get(row);
+            try {
+                TeamStatus status = value(TeamStatus.class, v.get(9));
+                RescueTeam team = new RescueTeam(v.get(0), v.get(1), List.of(v.get(2).split(";", -1)),
+                        values(AnimalType.class, v.get(3)), values(Skill.class, v.get(4)), values(Equipment.class, v.get(5)),
+                        new Location(v.get(6), Double.parseDouble(v.get(7)), Double.parseDouble(v.get(8)), Risk.LOW),
+                        status != TeamStatus.UNAVAILABLE, Integer.parseInt(v.get(10)));
+                if (teams.putIfAbsent(team.id(), team) != null)
+                    throw new ValidationException("Duplicate team ID: " + team.id());
+                declaredStatus.put(team.id(), status);
+            } catch (RuntimeException exception) {
+                throw bad(teamsFile, row, exception);
+            }
+        }
+        Map<String, RescueIncident> incidents = new LinkedHashMap<>();
+        rows = read(incidentsFile, INCIDENT_HEADER);
+        for (int row = 1; row < rows.size(); row++) {
+            List<String> v = rows.get(row);
+            try {
+                ReportRequest request = new ReportRequest(value(AnimalType.class, v.get(1)), value(Condition.class, v.get(2)),
+                        new Location(v.get(3), Double.parseDouble(v.get(4)), Double.parseDouble(v.get(5)), value(Risk.class, v.get(6))),
+                        Integer.parseInt(v.get(7)), bool(v.get(8)), values(Skill.class, v.get(9)), values(Equipment.class, v.get(10)),
+                        new Reporter(v.get(11), v.get(12)));
+                RescueIncident incident = new RescueIncident(v.get(0), request, Instant.parse(v.get(13)), Integer.parseInt(v.get(14)),
+                        value(IncidentStatus.class, v.get(16)), v.get(17));
+                if (incident.priorityScore() != new PriorityCalculator().calculate(request)
+                        || incident.priority() != value(Priority.class, v.get(15)))
+                    throw new ValidationException("Priority score/category does not match the policy and report data.");
+                if (incidents.putIfAbsent(incident.id(), incident) != null)
+                    throw new ValidationException("Duplicate incident ID: " + incident.id());
+            } catch (RuntimeException exception) {
+                throw bad(incidentsFile, row, exception);
+            }
+        }
+        State state = new State(incidents, teams);
+        try {
+            validateState(state);
+            for (RescueTeam team : teams.values()) {
+                if (team.status(state.workload(team.id())) != declaredStatus.get(team.id()))
+                    throw new ValidationException("Stored team status disagrees with active assignments: " + team.id());
+            }
+        } catch (RuntimeException exception) {
+            throw new IOException("Inconsistent CSV data: " + exception.getMessage(), exception);
+        }
+        return state;
+    }
 
     private static void writeForced(Path file, String text) throws IOException {
         try (FileChannel channel = FileChannel.open(file, CREATE, WRITE, TRUNCATE_EXISTING)) {
@@ -109,10 +172,53 @@ public final class CsvFileManager  {
         return Csv.encode(rows);
     }
 
+    @Override
+    public synchronized void save(State state) throws IOException {
+        validateState(state);
+        String generation = "snapshot-" + UUID.randomUUID();
+        Path directory = root.resolve("snapshots").resolve(generation);
+        Path pointer = null;
+        boolean published = false;
+        try {
+            Files.createDirectories(directory);
+            writeForced(directory.resolve("teams.csv"), teamsCsv(state));
+            writeForced(directory.resolve("incidents.csv"), incidentsCsv(state));
+            pointer = Files.createTempFile(root, "current-", ".tmp");
+            writeForced(pointer, generation + "\n");
+            // No non-atomic fallback: unsupported file systems get an explicit failure.
+            Files.move(pointer, root.resolve("CURRENT"), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            published = true;
+        } finally {
+            if (pointer != null) {
+                try {
+                    Files.deleteIfExists(pointer);
+                } catch (IOException ignored) { /* orphan only */ }
+            }
+            if (!published) {
+                for (Path path : List.of(directory.resolve("teams.csv"), directory.resolve("incidents.csv"), directory))
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException ignored) { /* incomplete generations are never read */ }
+            }
+        }
+    }
+
     private static String spreadsheetSafe(String value) {
         return value.matches("^[=+@-].*") ? "'" + value : value;
     }
 
-
+    public static Path exportReport(State state, Path directory) throws IOException {
+        Files.createDirectories(directory);
+        Path file = Files.createTempFile(directory, "rescue-report-", ".csv");
+        List<List<String>> rows = new ArrayList<>();
+        rows.add(List.of("group", "incident_id", "priority", "score", "status", "animal_type", "location", "team_id"));
+        state.incidents().values().stream().sorted(IncidentManager.PRIORITY_ORDER).forEach(i -> rows.add(List.of(
+                i.status() == IncidentStatus.COMPLETED ? "COMPLETED" : i.active() ? "ACTIVE" : "PENDING_ASSIGNMENT",
+                i.id(), i.priority().name(), Integer.toString(i.priorityScore()), i.status().name(), i.animal().type().name(),
+                spreadsheetSafe(i.report().location().description()), i.teamId())));
+        try { writeForced(file, Csv.encode(rows)); }
+        catch (IOException e) { try { Files.deleteIfExists(file); } catch (IOException cleanup) { e.addSuppressed(cleanup); } throw e; }
+        return file;
+    }
 }
 
