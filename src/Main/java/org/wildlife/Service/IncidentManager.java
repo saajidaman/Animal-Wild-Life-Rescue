@@ -67,5 +67,20 @@ public final class IncidentManager {
             throw new ValidationException("Only pending incidents can be matched for assignment.");
         return matcher.find(incident, state);
     }
+    public synchronized void assign(String incidentId, String teamId) throws IOException {
+        RescueIncident incident = incident(incidentId); RescueTeam team = team(teamId);
+        if (incident.status() != IncidentStatus.PENDING_ASSIGNMENT) throw new ValidationException("Incident is not pending.");
+        if (!team.operational()) throw new ValidationException("Team is unavailable.");
+        if (!team.animalTypes().contains(incident.animal().type())) throw new ValidationException("Animal type is incompatible.");
+        if (!team.skills().containsAll(incident.requiredSkills())) throw new ValidationException("Team lacks required skills.");
+        if (!team.equipment().containsAll(incident.requiredEquipment())) throw new ValidationException("Team lacks required equipment.");
+        if (state.workload(teamId) >= team.maxIncidents()) throw new ValidationException("Team has reached capacity.");
+        for (RescueIncident other : state.incidents().values()) {
+            if (other.status() == IncidentStatus.PENDING_ASSIGNMENT && PRIORITY_ORDER.compare(other, incident) < 0
+                    && matcher.eligible(other, team, state))
+                throw new ValidationException("Assign higher-ranked compatible incident first: " + other.id());
+        }
+        replace(incident.assign(teamId)); LOG.info("Assigned " + incidentId + " to " + teamId);
+    }
 
 }
