@@ -31,5 +31,10 @@ public final class IncidentManager {
         if (incident == null) throw new ValidationException("Unknown incident ID: " + id);
         return incident;
     }
+    private RescueTeam team(String id) {
+        RescueTeam team = state.teams().get(id);
+        if (team == null) throw new ValidationException("Unknown team ID: " + id);
+        return team;
+    }
 
 }
