@@ -23,5 +23,8 @@ public final class IncidentManager {
         this.repository = Objects.requireNonNull(repository); this.state = repository.load();
     }
     public synchronized State snapshot() { return state; }
+    public synchronized List<RescueIncident> incidents() {
+        return state.incidents().values().stream().sorted(PRIORITY_ORDER).toList();
+    }
 
 }
