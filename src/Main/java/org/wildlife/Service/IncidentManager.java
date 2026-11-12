@@ -85,5 +85,11 @@ public final class IncidentManager {
     public synchronized void updateStatus(String id, IncidentStatus next) throws IOException {
         replace(incident(id).advance(next)); LOG.info("Status " + id + " " + next);
     }
+    public synchronized void setOperational(String id, boolean available) throws IOException {
+        RescueTeam old = team(id);
+        if (!available && state.workload(id) > 0) throw new ValidationException("Complete active incidents before disabling the team.");
+        Map<String, RescueTeam> teams = new LinkedHashMap<>(state.teams()); teams.put(id, old.withOperational(available));
+        commit(new State(state.incidents(), teams)); LOG.info("Availability " + id + " " + available);
+    }
 
 }
