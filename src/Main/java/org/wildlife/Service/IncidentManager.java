@@ -92,5 +92,23 @@ public final class IncidentManager {
         commit(new State(state.incidents(), teams)); LOG.info("Availability " + id + " " + available);
     }
     public record SearchResult(String incidentId, String workerName, List<TeamMatcher.Match> matches) { }
-
+    public List<SearchResult> searchPendingConcurrently() throws InterruptedException, ExecutionException {
+        State captured = snapshot();
+        List<RescueIncident> pending = captured.incidents().values().stream()
+                .filter(i -> i.status() == IncidentStatus.PENDING_ASSIGNMENT).sorted(PRIORITY_ORDER).toList();
+        if (pending.isEmpty()) return List.of();
+        ExecutorService pool = Executors.newFixedThreadPool(Math.min(4, pending.size()));
+        try {
+            List<Callable<SearchResult>> tasks = new ArrayList<>();
+            for (RescueIncident incident : pending) tasks.add(() -> new SearchResult(incident.id(),
+                    Thread.currentThread().getName(), matcher.find(incident, captured)));
+            List<SearchResult> result = new ArrayList<>();
+            for (Future<SearchResult> future : pool.invokeAll(tasks)) result.add(future.get());
+            return List.copyOf(result);
+        } finally {
+            pool.shutdown();
+            try { if (!pool.awaitTermination(5, TimeUnit.SECONDS)) pool.shutdownNow(); }
+            catch (InterruptedException exception) { pool.shutdownNow(); Thread.currentThread().interrupt(); throw exception; }
+        }
+    }
 }
