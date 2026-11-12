@@ -61,5 +61,11 @@ public final class IncidentManager {
         Map<String, RescueTeam> teams = new LinkedHashMap<>(state.teams()); teams.put(team.id(), team);
         commit(new State(state.incidents(), teams)); LOG.info("Registered team " + team.id());
     }
+    public synchronized List<TeamMatcher.Match> matches(String id) {
+        RescueIncident incident = incident(id);
+        if (incident.status() != IncidentStatus.PENDING_ASSIGNMENT)
+            throw new ValidationException("Only pending incidents can be matched for assignment.");
+        return matcher.find(incident, state);
+    }
 
 }
