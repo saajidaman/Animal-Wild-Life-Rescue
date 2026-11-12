@@ -91,5 +91,6 @@ public final class IncidentManager {
         Map<String, RescueTeam> teams = new LinkedHashMap<>(state.teams()); teams.put(id, old.withOperational(available));
         commit(new State(state.incidents(), teams)); LOG.info("Availability " + id + " " + available);
     }
+    public record SearchResult(String incidentId, String workerName, List<TeamMatcher.Match> matches) { }
 
 }
