@@ -26,5 +26,10 @@ public final class IncidentManager {
     public synchronized List<RescueIncident> incidents() {
         return state.incidents().values().stream().sorted(PRIORITY_ORDER).toList();
     }
+    public synchronized RescueIncident incident(String id) {
+        RescueIncident incident = state.incidents().get(id);
+        if (incident == null) throw new ValidationException("Unknown incident ID: " + id);
+        return incident;
+    }
 
 }
