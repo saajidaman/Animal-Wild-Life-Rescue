@@ -42,4 +42,9 @@ public final class IncidentManager {
         repository.save(next); state = next;
     }
 
+    private void replace(RescueIncident incident) throws IOException {
+        Map<String, RescueIncident> incidents = new LinkedHashMap<>(state.incidents()); incidents.put(incident.id(), incident);
+        commit(new State(incidents, state.teams()));
+    }
+
 }
