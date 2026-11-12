@@ -82,5 +82,8 @@ public final class IncidentManager {
         }
         replace(incident.assign(teamId)); LOG.info("Assigned " + incidentId + " to " + teamId);
     }
+    public synchronized void updateStatus(String id, IncidentStatus next) throws IOException {
+        replace(incident(id).advance(next)); LOG.info("Status " + id + " " + next);
+    }
 
 }
