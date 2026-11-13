@@ -58,5 +58,11 @@ public final class ConsoleApp {
         manager.updateStatus(read("Incident ID"), choice(IncidentStatus.class, "New status"));
         System.out.println("Incident status saved.");
     }
+    private boolean yes(String prompt) {
+        return switch (read(prompt + " [yes/no]").toLowerCase(Locale.ROOT)) {
+            case "yes", "y" -> true; case "no", "n" -> false;
+            default -> throw new ValidationException("Enter yes or no.");
+        };
+    }
 
 }
