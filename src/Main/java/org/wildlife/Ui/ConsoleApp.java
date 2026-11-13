@@ -48,5 +48,8 @@ public final class ConsoleApp {
             System.out.println("  Skills: " + team.skills() + " | Equipment: " + team.equipment() + " | Base: " + team.location().description());
         }
     }
+    private void assign() throws IOException {
+        manager.assign(read("Incident ID"), read("Team ID")); System.out.println("Team assigned and saved.");
+    }
 
 }
