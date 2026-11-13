@@ -99,5 +99,15 @@ public final class ConsoleApp {
         System.out.println("Created " + incident.id() + " | " + incident.priority() + " score=" + incident.priorityScore());
         System.out.println("State: PENDING_ASSIGNMENT. Use menu 5 to find teams.");
     }
+    private void register() throws IOException {
+        String id = read("Team ID"), name = read("Team name");
+        List<String> members = Arrays.stream(read("Member names (semicolon separated)").split(";", -1)).map(String::trim).toList();
+        Set<AnimalType> types = choices(AnimalType.class, "Animal categories");
+        Set<Skill> skills = choices(Skill.class, "Skills"); Set<Equipment> equipment = choices(Equipment.class, "Equipment");
+        Location base = location(false); int capacity = number("Maximum simultaneous incidents (1..50)");
+        boolean available = yes("Operational / available for dispatch");
+        manager.register(new RescueTeam(id, name, members, types, skills, equipment, base, available, capacity));
+        System.out.println("Team registered.");
+    }
 
 }
