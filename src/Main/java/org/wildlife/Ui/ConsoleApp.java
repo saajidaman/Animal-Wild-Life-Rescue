@@ -81,5 +81,12 @@ public final class ConsoleApp {
     }
     private int number(String prompt) { return Integer.parseInt(read(prompt)); }
 
+    private <E extends Enum<E>> Set<E> choices(Class<E> type, String prompt) {
+        String text = read(prompt + " " + Arrays.toString(type.getEnumConstants()) + " (semicolon separated; blank for none)");
+        if (text.isBlank()) return Set.of();
+        Set<E> result = EnumSet.noneOf(type);
+        for (String part : text.split(";", -1)) result.add(Enum.valueOf(type, part.trim().toUpperCase(Locale.ROOT)));
+        return result;
+    }
 
 }
