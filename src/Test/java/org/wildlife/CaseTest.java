@@ -85,17 +85,13 @@ public final class CaseTest {
             expect(ValidationException.class, () -> new Location("Park",Double.NaN,0,Risk.LOW));
             expect(ValidationException.class, () -> new Location("Park",-1,0,Risk.LOW));
         });
+        test("Invalid counts, missing contact and control characters rejected", () -> {
+            expect(ValidationException.class, () -> request(AnimalType.BIRD,Condition.INJURED,Risk.LOW,0,false));
+            expect(ValidationException.class, () -> new Reporter("Person", ""));
+            expect(ValidationException.class, () -> new Reporter("Person\nSecond", "contact"));
+        });
 
     }
-    public static void main(String[] args) throws Exception {
-        Logger.getLogger("org.wildlife").setLevel(Level.OFF);
-        System.out.println("Regression test run: " + Instant.now() + " | Java " + System.getProperty("java.version"));
-        try { runTests(); System.out.println("RESULT: " + passed + " passed; 0 failed."); }
-        finally {
-            for (Path directory : TEMPORARIES) try (var paths = Files.walk(directory)) {
-                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
-            }
-        }
-    }
+
 }
 
