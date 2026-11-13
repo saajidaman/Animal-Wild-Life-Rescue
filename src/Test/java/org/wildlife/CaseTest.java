@@ -80,8 +80,22 @@ public final class CaseTest {
             check(animals[1].requiredEquipment().contains(Equipment.GLOVES), "reptile");
             check(animals[2].requiredSkills().contains(Skill.MAMMAL_HANDLING), "mammal");
         });
+        test("Blank location and invalid coordinates rejected", () -> {
+            expect(ValidationException.class, () -> new Location(" ",0,0,Risk.LOW));
+            expect(ValidationException.class, () -> new Location("Park",Double.NaN,0,Risk.LOW));
+            expect(ValidationException.class, () -> new Location("Park",-1,0,Risk.LOW));
+        });
 
     }
-
+    public static void main(String[] args) throws Exception {
+        Logger.getLogger("org.wildlife").setLevel(Level.OFF);
+        System.out.println("Regression test run: " + Instant.now() + " | Java " + System.getProperty("java.version"));
+        try { runTests(); System.out.println("RESULT: " + passed + " passed; 0 failed."); }
+        finally {
+            for (Path directory : TEMPORARIES) try (var paths = Files.walk(directory)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
 }
 
