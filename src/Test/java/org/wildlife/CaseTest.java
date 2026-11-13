@@ -95,6 +95,11 @@ public final class CaseTest {
             expect(ValidationException.class, () -> new RescueTeam("X","Team",List.of(),Set.of(AnimalType.BIRD),Set.of(Skill.BIRD_HANDLING),Set.of(Equipment.NET),new Location("Base",0,0,Risk.LOW),true,1));
             expect(ValidationException.class, () -> new RescueTeam("X","Team",List.of("A"),Set.of(AnimalType.REPTILE),Set.of(Skill.BIRD_HANDLING),Set.of(Equipment.NET),new Location("Base",0,0,Risk.LOW),true,1));
         });
+        test("Report receives unique ID, requirements and pending state", () -> {
+            IncidentManager m=manager(); RescueIncident a=m.report(normal()), b=m.report(normal());
+            check(!a.id().equals(b.id()),"unique"); check(a.status()==IncidentStatus.PENDING_ASSIGNMENT,"pending");
+            check(a.requiredEquipment().containsAll(Set.of(Equipment.CARRIER,Equipment.NET)),"baseline");
+        });
 
     }
 
