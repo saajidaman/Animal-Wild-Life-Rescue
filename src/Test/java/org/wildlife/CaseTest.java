@@ -24,6 +24,7 @@ public final class CaseTest {
             if (fail) throw new IOException("Injected disk failure"); state = next;
         }
     }
+    private static void check(boolean value, String message) { if (!value) throw new AssertionError(message); }
 
 }
 
