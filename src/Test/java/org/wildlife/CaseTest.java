@@ -53,6 +53,13 @@ public final class CaseTest {
                 IncidentStatus.PENDING_ASSIGNMENT, "");
         return new State(Map.of(incident.id(), incident), Map.of("TEAM", team("TEAM", 1, true)));
     }
+    private static void corruptIncident(int column, String value) throws Exception {
+        Path p = temporary(); bootstrap(p, sample());
+        List<List<String>> rows = new ArrayList<>(Csv.parse(Files.readString(p.resolve("incidents.csv"))));
+        List<String> row = new ArrayList<>(rows.get(1)); row.set(column, value); rows.set(1, row);
+        Files.writeString(p.resolve("incidents.csv"), Csv.encode(rows));
+        expect(IOException.class, () -> new CsvFileManager(p).load());
+    }
 
 }
 
