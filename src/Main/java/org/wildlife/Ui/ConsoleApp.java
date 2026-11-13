@@ -21,5 +21,10 @@ public final class ConsoleApp {
     }
     private String read(String prompt) { System.out.print(prompt + ": "); return input.nextLine().trim(); }
     private double coordinate(String prompt) { return Double.parseDouble(read(prompt)); }
+    public static void printIncident(RescueIncident i) {
+        System.out.printf(Locale.ROOT, "%s | %s (%d) | %s | %s | team=%s%n", i.id(), i.priority(), i.priorityScore(),
+                i.animal().type(), i.status(), i.teamId().isEmpty() ? "unassigned" : i.teamId());
+        System.out.println("  " + i.report().location().description() + " | " + i.report().condition() + " | animals=" + i.report().animalCount());
+    }
 
 }
