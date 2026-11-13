@@ -122,6 +122,12 @@ public final class CaseTest {
             check(m.matches(i.id()).isEmpty(),"water rescue exclusion");
             expect(ValidationException.class, () -> m.assign(i.id(),"A"));
         });
+        test("Assignment independently rejects missing equipment", () -> {
+            IncidentManager m=manager();
+            m.register(new RescueTeam("A","No net",List.of("A"),Set.of(AnimalType.BIRD),Set.of(Skill.BIRD_HANDLING),Set.of(Equipment.CARRIER),new Location("Base",0,0,Risk.LOW),true,1));
+            RescueIncident i=m.report(normal()); expect(ValidationException.class, () -> m.assign(i.id(),"A"));
+            check(m.incident(i.id()).status()==IncidentStatus.PENDING_ASSIGNMENT,"unchanged");
+        });
 
     }
 
