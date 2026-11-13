@@ -60,6 +60,15 @@ public final class CaseTest {
         Files.writeString(p.resolve("incidents.csv"), Csv.encode(rows));
         expect(IOException.class, () -> new CsvFileManager(p).load());
     }
+    private static void runTests() throws Exception {
+        test("Priority threshold boundaries", () -> {
+            int[] scores = {0,24,25,49,50,79,80,100};
+            Priority[] expected = {Priority.LOW,Priority.LOW,Priority.MEDIUM,Priority.MEDIUM,Priority.HIGH,Priority.HIGH,Priority.CRITICAL,Priority.CRITICAL};
+            for (int i=0;i<scores.length;i++) check(Priority.fromScore(scores[i]) == expected[i], "boundary " + scores[i]);
+            expect(ValidationException.class, () -> Priority.fromScore(101));
+        });
+
+    }
 
 }
 
