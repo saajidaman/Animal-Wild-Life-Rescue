@@ -73,5 +73,11 @@ public final class ConsoleApp {
         for (IncidentManager.SearchResult result : results) System.out.println(result.incidentId() + " | " + result.workerName()
                 + " | suitable=" + result.matches().stream().map(m -> m.team().id()).toList());
     }
+    private Location location(boolean withRisk) {
+        String description = read("Approximate location / landmark");
+        System.out.println("Use a consistent local map grid in kilometres (0..1000); these are not GPS coordinates.");
+        double x = coordinate("Map X km"), y = coordinate("Map Y km");
+        return new Location(description, x, y, withRisk ? choice(Risk.class, "Environmental risk") : Risk.LOW);
+    }
 
 }
