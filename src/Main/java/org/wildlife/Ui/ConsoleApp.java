@@ -19,6 +19,29 @@ public final class ConsoleApp {
     public ConsoleApp(IncidentManager manager, Scanner input, Path reportsDirectory) {
         this.manager = manager; this.input = input; this.reportsDirectory = reportsDirectory;
     }
+    public void run() {
+        System.out.println("\nURBAN WILDLIFE RESCUE COORDINATION | Java 17 worked reference");
+        while (true) {
+            System.out.println("\n1 Report incident    2 View incidents     3 View teams");
+            System.out.println("4 Register team      5 Find suitable teams 6 Assign team");
+            System.out.println("7 Update status      8 Team availability  9 Export rescue report");
+            System.out.println("10 Concurrent matching                    0 Exit");
+            try {
+                switch (read("Choose")) {
+                    case "1" -> report(); case "2" -> view(); case "3" -> teams();
+                    case "4" -> register(); case "5" -> matches(); case "6" -> assign();
+                    case "7" -> update(); case "8" -> availability();
+                    case "9" -> System.out.println("Saved " + CsvFileManager.exportReport(manager.snapshot(), reportsDirectory));
+                    case "10" -> concurrent();
+                    case "0" -> { System.out.println("Saved changes are already on disk. Goodbye."); return; }
+                    default -> System.out.println("Choose a listed menu number.");
+                }
+            } catch (NoSuchElementException e) { System.out.println("\nInput ended. Goodbye."); return; }
+              catch (IllegalArgumentException | IOException e) { System.out.println("Operation failed: " + e.getMessage()); }
+              catch (ExecutionException e) { System.out.println("Worker failed: " + e.getCause()); }
+              catch (InterruptedException e) { Thread.currentThread().interrupt(); System.out.println("Interrupted; closing."); return; }
+        }
+    }
     private String read(String prompt) { System.out.print(prompt + ": "); return input.nextLine().trim(); }
     private double coordinate(String prompt) { return Double.parseDouble(read(prompt)); }
     public static void printIncident(RescueIncident i) {
