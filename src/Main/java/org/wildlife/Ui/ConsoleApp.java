@@ -20,5 +20,6 @@ public final class ConsoleApp {
         this.manager = manager; this.input = input; this.reportsDirectory = reportsDirectory;
     }
     private String read(String prompt) { System.out.print(prompt + ": "); return input.nextLine().trim(); }
+    private double coordinate(String prompt) { return Double.parseDouble(read(prompt)); }
 
 }
