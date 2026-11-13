@@ -48,6 +48,11 @@ public final class CaseTest {
         Files.writeString(path.resolve("teams.csv"), CsvFileManager.teamsCsv(state));
         Files.writeString(path.resolve("incidents.csv"), CsvFileManager.incidentsCsv(state));
     }
+    private static State sample() {
+        RescueIncident incident = new RescueIncident("INC-ONE", normal(), Instant.parse("2026-10-22T00:00:00Z"), 15,
+                IncidentStatus.PENDING_ASSIGNMENT, "");
+        return new State(Map.of(incident.id(), incident), Map.of("TEAM", team("TEAM", 1, true)));
+    }
 
 }
 
