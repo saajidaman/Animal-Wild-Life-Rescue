@@ -100,6 +100,11 @@ public final class CaseTest {
             check(!a.id().equals(b.id()),"unique"); check(a.status()==IncidentStatus.PENDING_ASSIGNMENT,"pending");
             check(a.requiredEquipment().containsAll(Set.of(Equipment.CARRIER,Equipment.NET)),"baseline");
         });
+        test("Incident listing orders critical before lower priorities", () -> {
+            IncidentManager m=manager(); m.report(normal());
+            RescueIncident urgent=m.report(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,1,true));
+            check(m.incidents().get(0).id().equals(urgent.id()),"urgent first");
+        });
 
     }
 
