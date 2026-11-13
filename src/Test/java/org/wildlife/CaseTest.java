@@ -90,6 +90,11 @@ public final class CaseTest {
             expect(ValidationException.class, () -> new Reporter("Person", ""));
             expect(ValidationException.class, () -> new Reporter("Person\nSecond", "contact"));
         });
+        test("Invalid team capacity, members and handling skill rejected", () -> {
+            expect(ValidationException.class, () -> team("BAD",0,true));
+            expect(ValidationException.class, () -> new RescueTeam("X","Team",List.of(),Set.of(AnimalType.BIRD),Set.of(Skill.BIRD_HANDLING),Set.of(Equipment.NET),new Location("Base",0,0,Risk.LOW),true,1));
+            expect(ValidationException.class, () -> new RescueTeam("X","Team",List.of("A"),Set.of(AnimalType.REPTILE),Set.of(Skill.BIRD_HANDLING),Set.of(Equipment.NET),new Location("Base",0,0,Risk.LOW),true,1));
+        });
 
     }
 
