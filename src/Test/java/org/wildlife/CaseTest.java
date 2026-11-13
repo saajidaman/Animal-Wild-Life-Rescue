@@ -110,6 +110,11 @@ public final class CaseTest {
             expect(ValidationException.class, () -> m.register(team("A",5,true)));
             check(m.snapshot().teams().get("A").maxIncidents()==1,"original unchanged");
         });
+        test("Animal compatibility filters teams", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));
+            RescueIncident i=m.report(request(AnimalType.REPTILE,Condition.INJURED,Risk.LOW,1,false));
+            check(m.matches(i.id()).isEmpty(),"no compatible team");
+        });
 
     }
 
