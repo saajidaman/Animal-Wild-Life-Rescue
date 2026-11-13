@@ -15,6 +15,7 @@ import static org.wildlife.Model.Types.*;
 public final class CaseTest {
     @FunctionalInterface private interface Checked { void run() throws Exception; }
     private static int passed;
+    private static final List<Path> TEMPORARIES = new ArrayList<>();
 
 }
 
