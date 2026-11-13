@@ -28,6 +28,10 @@ public final class CaseTest {
     private static void test(String label, Checked action) throws Exception {
         action.run(); passed++; System.out.printf("PASS T%02d %s%n", passed, label);
     }
+    private static void expect(Class<? extends Throwable> type, Checked action) throws Exception {
+        try { action.run(); } catch (Exception e) { if (type.isInstance(e)) return; throw e; }
+        throw new AssertionError("Expected " + type.getSimpleName());
+    }
 
 }
 
