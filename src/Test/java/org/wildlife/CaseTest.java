@@ -115,6 +115,13 @@ public final class CaseTest {
             RescueIncident i=m.report(request(AnimalType.REPTILE,Condition.INJURED,Risk.LOW,1,false));
             check(m.matches(i.id()).isEmpty(),"no compatible team");
         });
+        test("Missing special skills/equipment excludes teams", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));
+            ReportRequest r=normal();
+            RescueIncident i=m.report(new ReportRequest(r.animalType(),r.condition(),r.location(),1,false,Set.of(Skill.WATER_RESCUE),Set.of(Equipment.BOAT),r.reporter()));
+            check(m.matches(i.id()).isEmpty(),"water rescue exclusion");
+            expect(ValidationException.class, () -> m.assign(i.id(),"A"));
+        });
 
     }
 
