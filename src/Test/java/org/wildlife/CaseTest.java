@@ -105,6 +105,11 @@ public final class CaseTest {
             RescueIncident urgent=m.report(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,1,true));
             check(m.incidents().get(0).id().equals(urgent.id()),"urgent first");
         });
+        test("Duplicate team ID rejected without replacement", () -> {
+            IncidentManager m=manager(); m.register(team("A",1,true));
+            expect(ValidationException.class, () -> m.register(team("A",5,true)));
+            check(m.snapshot().teams().get("A").maxIncidents()==1,"original unchanged");
+        });
 
     }
 
