@@ -88,5 +88,16 @@ public final class ConsoleApp {
         for (String part : text.split(";", -1)) result.add(Enum.valueOf(type, part.trim().toUpperCase(Locale.ROOT)));
         return result;
     }
+    private void report() throws IOException {
+        AnimalType animal = choice(AnimalType.class, "Animal type"); Condition condition = choice(Condition.class, "Condition");
+        Location location = location(true); int count = number("Number of animals"); boolean danger = yes("Immediate danger");
+        System.out.println("Baseline handling skill/equipment is added automatically for the animal type.");
+        Set<Skill> skills = choices(Skill.class, "Additional skills");
+        Set<Equipment> equipment = choices(Equipment.class, "Additional equipment");
+        Reporter reporter = new Reporter(read("Reporter name"), read("Contact (phone or email)"));
+        RescueIncident incident = manager.report(new ReportRequest(animal, condition, location, count, danger, skills, equipment, reporter));
+        System.out.println("Created " + incident.id() + " | " + incident.priority() + " score=" + incident.priorityScore());
+        System.out.println("State: PENDING_ASSIGNMENT. Use menu 5 to find teams.");
+    }
 
 }
