@@ -79,5 +79,7 @@ public final class ConsoleApp {
         double x = coordinate("Map X km"), y = coordinate("Map Y km");
         return new Location(description, x, y, withRisk ? choice(Risk.class, "Environmental risk") : Risk.LOW);
     }
+    private int number(String prompt) { return Integer.parseInt(read(prompt)); }
+
 
 }
