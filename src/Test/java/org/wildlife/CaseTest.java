@@ -32,6 +32,10 @@ public final class CaseTest {
         try { action.run(); } catch (Exception e) { if (type.isInstance(e)) return; throw e; }
         throw new AssertionError("Expected " + type.getSimpleName());
     }
+    private static ReportRequest request(AnimalType type, Condition condition, Risk risk, int count, boolean danger) {
+        return new ReportRequest(type, condition, new Location("Park, near \"Gate A\"", 3, 4, risk), count, danger,
+                Set.of(), Set.of(), new Reporter("Example Reporter", "example@example.invalid"));
+    }
 
 }
 
