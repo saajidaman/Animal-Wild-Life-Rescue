@@ -54,5 +54,9 @@ public final class ConsoleApp {
     private <E extends Enum<E>> E choice(Class<E> type, String prompt) {
         return Enum.valueOf(type, read(prompt + " " + Arrays.toString(type.getEnumConstants())).toUpperCase(Locale.ROOT));
     }
+    private void update() throws IOException {
+        manager.updateStatus(read("Incident ID"), choice(IncidentStatus.class, "New status"));
+        System.out.println("Incident status saved.");
+    }
 
 }
