@@ -36,6 +36,7 @@ public final class CaseTest {
         return new ReportRequest(type, condition, new Location("Park, near \"Gate A\"", 3, 4, risk), count, danger,
                 Set.of(), Set.of(), new Reporter("Example Reporter", "example@example.invalid"));
     }
+    private static ReportRequest normal() { return request(AnimalType.BIRD, Condition.DISPLACED, Risk.LOW, 1, false); }
 
 }
 
