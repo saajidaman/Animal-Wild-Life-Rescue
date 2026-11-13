@@ -42,6 +42,7 @@ public final class CaseTest {
                 Set.of(Skill.BIRD_HANDLING, Skill.CLIMBING), Set.of(Equipment.CARRIER, Equipment.NET, Equipment.CLIMBING_KIT),
                 new Location("Base", 0, 0, Risk.LOW), operational, capacity);
     }
+    private static IncidentManager manager() throws IOException { return new IncidentManager(new MemoryRepository()); }
 
 }
 
