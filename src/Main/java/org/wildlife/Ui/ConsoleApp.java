@@ -64,5 +64,8 @@ public final class ConsoleApp {
             default -> throw new ValidationException("Enter yes or no.");
         };
     }
+    private void availability() throws IOException {
+        manager.setOperational(read("Team ID"), yes("Set operational")); System.out.println("Availability saved.");
+    }
 
 }
