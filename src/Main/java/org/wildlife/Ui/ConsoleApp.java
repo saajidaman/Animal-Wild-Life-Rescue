@@ -38,5 +38,15 @@ public final class ConsoleApp {
                 match.team().id(), match.workload(), match.team().maxIncidents(), match.distanceKm());
         System.out.println("Suggestions are a snapshot; assignment rechecks capacity and priority.");
     }
+    private void teams() {
+        State state = manager.snapshot();
+        if (state.teams().isEmpty()) System.out.println("No rescue teams registered.");
+        for (RescueTeam team : state.teams().values()) {
+            int workload = state.workload(team.id());
+            System.out.println(team.id() + " | " + team.name() + " | " + team.status(workload) + " | load=" + workload + "/" + team.maxIncidents());
+            System.out.println("  Members: " + team.members() + " | Types: " + team.animalTypes());
+            System.out.println("  Skills: " + team.skills() + " | Equipment: " + team.equipment() + " | Base: " + team.location().description());
+        }
+    }
 
 }
