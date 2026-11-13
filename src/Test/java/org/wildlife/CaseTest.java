@@ -44,6 +44,10 @@ public final class CaseTest {
     }
     private static IncidentManager manager() throws IOException { return new IncidentManager(new MemoryRepository()); }
     private static Path temporary() throws IOException { Path p = Files.createTempDirectory("wildlife-tests-"); TEMPORARIES.add(p); return p; }
+    private static void bootstrap(Path path, State state) throws IOException {
+        Files.writeString(path.resolve("teams.csv"), CsvFileManager.teamsCsv(state));
+        Files.writeString(path.resolve("incidents.csv"), CsvFileManager.incidentsCsv(state));
+    }
 
 }
 
