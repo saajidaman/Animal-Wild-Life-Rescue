@@ -43,6 +43,7 @@ public final class CaseTest {
                 new Location("Base", 0, 0, Risk.LOW), operational, capacity);
     }
     private static IncidentManager manager() throws IOException { return new IncidentManager(new MemoryRepository()); }
+    private static Path temporary() throws IOException { Path p = Files.createTempDirectory("wildlife-tests-"); TEMPORARIES.add(p); return p; }
 
 }
 
