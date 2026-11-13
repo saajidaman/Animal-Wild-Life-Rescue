@@ -31,5 +31,12 @@ public final class ConsoleApp {
         if (incidents.isEmpty()) { System.out.println("No incidents."); return; }
         for (RescueIncident incident : incidents) printIncident(incident);
     }
+    private void matches() {
+        List<TeamMatcher.Match> matches = manager.matches(read("Incident ID"));
+        if (matches.isEmpty()) System.out.println("No suitable team. Incident remains PENDING_ASSIGNMENT.");
+        else for (TeamMatcher.Match match : matches) System.out.printf(Locale.ROOT, "%s | load=%d/%d | distance=%.2f km%n",
+                match.team().id(), match.workload(), match.team().maxIncidents(), match.distanceKm());
+        System.out.println("Suggestions are a snapshot; assignment rechecks capacity and priority.");
+    }
 
 }
