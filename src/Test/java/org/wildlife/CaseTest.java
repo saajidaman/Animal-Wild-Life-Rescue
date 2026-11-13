@@ -74,6 +74,12 @@ public final class CaseTest {
             check(calculator.calculate(request(AnimalType.BIRD,Condition.DISPLACED,Risk.LOW,1,true)) == 80, "danger must be critical");
             check(calculator.calculate(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,10000,true)) == 100, "bounded");
         });
+        test("Animal subtype polymorphism", () -> {
+            Animal[] animals = {new Bird(),new Reptile(),new Mammal()};
+            check(animals[0].requiredSkills().contains(Skill.BIRD_HANDLING), "bird");
+            check(animals[1].requiredEquipment().contains(Equipment.GLOVES), "reptile");
+            check(animals[2].requiredSkills().contains(Skill.MAMMAL_HANDLING), "mammal");
+        });
 
     }
 
