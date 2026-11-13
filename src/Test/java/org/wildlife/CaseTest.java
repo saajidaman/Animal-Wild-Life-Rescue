@@ -145,6 +145,12 @@ public final class CaseTest {
             m.register(new RescueTeam(near.id(),near.name(),near.members(),near.animalTypes(),near.skills(),near.equipment(),new Location("Near",3,4,Risk.LOW),true,1));
             check(m.matches(m.report(normal()).id()).get(0).team().id().equals("Z"),"nearest first");
         });
+        test("Assigned team accepts work until configured capacity", () -> {
+            IncidentManager m=manager();m.register(team("A",2,true));RescueIncident a=m.report(normal());m.assign(a.id(),"A");
+            RescueIncident b=m.report(normal());check(m.matches(b.id()).size()==1,"spare slot remains");m.assign(b.id(),"A");
+            RescueIncident c=m.report(normal());expect(ValidationException.class, () -> m.assign(c.id(),"A"));
+            check(m.snapshot().workload("A")==2,"capacity respected");
+        });
 
     }
 
