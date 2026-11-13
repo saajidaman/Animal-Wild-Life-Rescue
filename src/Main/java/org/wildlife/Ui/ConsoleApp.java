@@ -26,5 +26,10 @@ public final class ConsoleApp {
                 i.animal().type(), i.status(), i.teamId().isEmpty() ? "unassigned" : i.teamId());
         System.out.println("  " + i.report().location().description() + " | " + i.report().condition() + " | animals=" + i.report().animalCount());
     }
+    private void view() {
+        List<RescueIncident> incidents = manager.incidents();
+        if (incidents.isEmpty()) { System.out.println("No incidents."); return; }
+        for (RescueIncident incident : incidents) printIncident(incident);
+    }
 
 }
