@@ -16,6 +16,14 @@ public final class CaseTest {
     @FunctionalInterface private interface Checked { void run() throws Exception; }
     private static int passed;
     private static final List<Path> TEMPORARIES = new ArrayList<>();
+    private CaseTest() { }
+    private static final class MemoryRepository implements StateStorage {
+        private State state = State.empty(); private boolean fail;
+        @Override public State load() { return state; }
+        @Override public void save(State next) throws IOException {
+            if (fail) throw new IOException("Injected disk failure"); state = next;
+        }
+    }
 
 }
 
