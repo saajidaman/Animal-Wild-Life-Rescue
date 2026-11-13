@@ -37,6 +37,11 @@ public final class CaseTest {
                 Set.of(), Set.of(), new Reporter("Example Reporter", "example@example.invalid"));
     }
     private static ReportRequest normal() { return request(AnimalType.BIRD, Condition.DISPLACED, Risk.LOW, 1, false); }
+    private static RescueTeam team(String id, int capacity, boolean operational) {
+        return new RescueTeam(id, "Team " + id, List.of("Example A", "Example B"), Set.of(AnimalType.BIRD),
+                Set.of(Skill.BIRD_HANDLING, Skill.CLIMBING), Set.of(Equipment.CARRIER, Equipment.NET, Equipment.CLIMBING_KIT),
+                new Location("Base", 0, 0, Risk.LOW), operational, capacity);
+    }
 
 }
 
