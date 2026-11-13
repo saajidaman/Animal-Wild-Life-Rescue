@@ -132,6 +132,13 @@ public final class CaseTest {
             IncidentManager m=manager();m.register(team("A",1,false));RescueIncident i=m.report(normal());
             check(m.matches(i.id()).isEmpty(),"excluded");expect(ValidationException.class, () -> m.assign(i.id(),"A"));
         });
+        test("Matching ranks utilization before distance, then ID", () -> {
+            IncidentManager m=manager();m.register(team("A",2,true));m.register(team("B",2,true));
+            RescueIncident i=m.report(normal());m.assign(i.id(),"A");RescueIncident next=m.report(normal());
+            check(m.matches(next.id()).get(0).team().id().equals("B"),"idle first");
+            IncidentManager fresh=manager();fresh.register(team("B",1,true));fresh.register(team("A",1,true));
+            check(fresh.matches(fresh.report(normal()).id()).get(0).team().id().equals("A"),"stable tie");
+        });
 
     }
 
