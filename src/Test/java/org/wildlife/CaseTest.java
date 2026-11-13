@@ -128,6 +128,10 @@ public final class CaseTest {
             RescueIncident i=m.report(normal()); expect(ValidationException.class, () -> m.assign(i.id(),"A"));
             check(m.incident(i.id()).status()==IncidentStatus.PENDING_ASSIGNMENT,"unchanged");
         });
+        test("Unavailable team excluded and direct assignment rejected", () -> {
+            IncidentManager m=manager();m.register(team("A",1,false));RescueIncident i=m.report(normal());
+            check(m.matches(i.id()).isEmpty(),"excluded");expect(ValidationException.class, () -> m.assign(i.id(),"A"));
+        });
 
     }
 
