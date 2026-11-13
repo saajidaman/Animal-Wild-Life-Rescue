@@ -67,5 +67,11 @@ public final class ConsoleApp {
     private void availability() throws IOException {
         manager.setOperational(read("Team ID"), yes("Set operational")); System.out.println("Availability saved.");
     }
+    private void concurrent() throws InterruptedException, ExecutionException {
+        List<IncidentManager.SearchResult> results = manager.searchPendingConcurrently();
+        if (results.isEmpty()) System.out.println("No pending incidents.");
+        for (IncidentManager.SearchResult result : results) System.out.println(result.incidentId() + " | " + result.workerName()
+                + " | suitable=" + result.matches().stream().map(m -> m.team().id()).toList());
+    }
 
 }
