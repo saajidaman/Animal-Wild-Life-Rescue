@@ -25,6 +25,9 @@ public final class CaseTest {
         }
     }
     private static void check(boolean value, String message) { if (!value) throw new AssertionError(message); }
+    private static void test(String label, Checked action) throws Exception {
+        action.run(); passed++; System.out.printf("PASS T%02d %s%n", passed, label);
+    }
 
 }
 
