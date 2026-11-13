@@ -51,5 +51,8 @@ public final class ConsoleApp {
     private void assign() throws IOException {
         manager.assign(read("Incident ID"), read("Team ID")); System.out.println("Team assigned and saved.");
     }
+    private <E extends Enum<E>> E choice(Class<E> type, String prompt) {
+        return Enum.valueOf(type, read(prompt + " " + Arrays.toString(type.getEnumConstants())).toUpperCase(Locale.ROOT));
+    }
 
 }
