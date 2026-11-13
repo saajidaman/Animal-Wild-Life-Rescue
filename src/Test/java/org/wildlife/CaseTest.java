@@ -67,6 +67,13 @@ public final class CaseTest {
             for (int i=0;i<scores.length;i++) check(Priority.fromScore(scores[i]) == expected[i], "boundary " + scores[i]);
             expect(ValidationException.class, () -> Priority.fromScore(101));
         });
+        test("Priority weights, immediate danger and score cap", () -> {
+            PriorityCalculator calculator = new PriorityCalculator();
+            check(calculator.calculate(normal()) == 15, "low baseline");
+            check(calculator.calculate(request(AnimalType.MAMMAL,Condition.ABANDONED,Risk.MEDIUM,2,false)) == 40, "weight sum");
+            check(calculator.calculate(request(AnimalType.BIRD,Condition.DISPLACED,Risk.LOW,1,true)) == 80, "danger must be critical");
+            check(calculator.calculate(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,10000,true)) == 100, "bounded");
+        });
 
     }
 
