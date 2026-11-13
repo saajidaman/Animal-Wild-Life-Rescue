@@ -139,6 +139,12 @@ public final class CaseTest {
             IncidentManager fresh=manager();fresh.register(team("B",1,true));fresh.register(team("A",1,true));
             check(fresh.matches(fresh.report(normal()).id()).get(0).team().id().equals("A"),"stable tie");
         });
+        test("Distance breaks equal-utilization ties", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));
+            RescueTeam near=team("Z",1,true);
+            m.register(new RescueTeam(near.id(),near.name(),near.members(),near.animalTypes(),near.skills(),near.equipment(),new Location("Near",3,4,Risk.LOW),true,1));
+            check(m.matches(m.report(normal()).id()).get(0).team().id().equals("Z"),"nearest first");
+        });
 
     }
 
