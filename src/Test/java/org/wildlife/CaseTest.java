@@ -211,6 +211,7 @@ public final class CaseTest {
         });
         test("Invalid CSV animal type rejected", () -> corruptIncident(1,"DRAGON"));
         test("Invalid CSV priority score and category rejected", () -> {corruptIncident(14,"99");corruptIncident(15,"CRITICAL");});
+        test("Invalid CSV location and boolean rejected", () -> {corruptIncident(3,"");corruptIncident(8,"maybe");});
 
     }
 
