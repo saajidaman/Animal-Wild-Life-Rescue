@@ -223,6 +223,10 @@ public final class CaseTest {
             bootstrap(p,s);String text=Files.readString(p.resolve("teams.csv")).replace("AVAILABLE","ASSIGNED");Files.writeString(p.resolve("teams.csv"),text);
             expect(IOException.class, () -> new CsvFileManager(p).load());
         });
+        test("Snapshot pointer traversal and missing generation rejected", () -> {
+            Path p=temporary();Files.writeString(p.resolve("CURRENT"),"../../elsewhere");expect(IOException.class, () -> new CsvFileManager(p).load());
+            Files.writeString(p.resolve("CURRENT"),"snapshot-00000000-0000-0000-0000-000000000000");expect(IOException.class, () -> new CsvFileManager(p).load());
+        });
 
     }
 
