@@ -282,6 +282,11 @@ public final class CaseTest {
             check(rows.size()==3,"two rows");Set<String> groups=Set.of(rows.get(1).get(0),rows.get(2).get(0));
             check(groups.containsAll(Set.of("COMPLETED","PENDING_ASSIGNMENT")),"groups");check(!text.contains("example@example.invalid"),"no contact exposure");
         });
+        test("Immutable snapshots and collections cannot be externally mutated", () -> {
+            IncidentManager m=manager();RescueIncident i=m.report(normal());
+            expect(UnsupportedOperationException.class,()->m.snapshot().incidents().clear());
+            expect(UnsupportedOperationException.class,()->i.requiredSkills().clear());
+        });
 
     }
 
