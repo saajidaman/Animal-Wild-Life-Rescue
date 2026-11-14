@@ -261,6 +261,14 @@ public final class CaseTest {
                 check(ids.size()==100 && m.incidents().size()==100,"all unique and retained");
             }finally{pool.shutdownNow();}
         });
+        test("Concurrent assignments cannot exceed the final available slot", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));RescueIncident a=m.report(normal()),b=m.report(normal());
+            CountDownLatch start=new CountDownLatch(1);AtomicInteger successes=new AtomicInteger();ExecutorService pool=Executors.newFixedThreadPool(2);
+            try {List<Future<?>> futures=new ArrayList<>();for(RescueIncident i:List.of(a,b))futures.add(pool.submit(()->{
+                try{start.await();m.assign(i.id(),"A");successes.incrementAndGet();}catch(ValidationException expected){return null;}return null;}));
+                start.countDown();for(Future<?> f:futures)f.get();check(successes.get()==1 && m.snapshot().workload("A")==1,"one winner");
+            }finally{pool.shutdownNow();}
+        });
 
     }
 
