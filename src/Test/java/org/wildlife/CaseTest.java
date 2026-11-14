@@ -242,6 +242,12 @@ public final class CaseTest {
             IncidentManager m=new IncidentManager(new CsvFileManager(p));expect(IOException.class, () -> m.report(normal()));
             check(m.incidents().size()==1,"memory");check(new CsvFileManager(p).load().incidents().size()==1,"disk");
         });
+        test("Multiple commits publish complete current generation", () -> {
+            Path p=temporary();IncidentManager m=new IncidentManager(new CsvFileManager(p));m.register(team("A",1,true));
+            String old=Files.readString(p.resolve("CURRENT"));RescueIncident i=m.report(normal());m.assign(i.id(),"A");
+            check(!old.equals(Files.readString(p.resolve("CURRENT"))),"generation changed");State loaded=new CsvFileManager(p).load();
+            check(loaded.workload("A")==1 && loaded.teams().get("A").status(1)==TeamStatus.ASSIGNED,"coherent pair");
+        });
 
     }
 
