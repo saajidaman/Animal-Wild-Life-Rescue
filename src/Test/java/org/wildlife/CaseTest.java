@@ -189,6 +189,12 @@ public final class CaseTest {
             check(m.snapshot().teams().get("A").status(0)==TeamStatus.UNAVAILABLE,"disabled");m.setOperational("A",true);
             check(m.snapshot().teams().get("A").operational(),"enabled");
         });
+        test("CSV preserves commas, quotes, multiline fields, BOM and CRLF", () -> {
+            List<List<String>> rows=List.of(List.of("a,b","quote \"x\"","line\nsecond",""));
+            check(Csv.parse(Csv.encode(rows)).equals(rows),"roundtrip");
+            check(Csv.parse("\uFEFFa,b\r\nc,d\r\n").size()==2,"BOM CRLF");
+            check(Csv.parse("a,").get(0).equals(List.of("a","")),"trailing empty");
+        });
 
     }
 
