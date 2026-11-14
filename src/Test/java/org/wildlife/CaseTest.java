@@ -275,6 +275,13 @@ public final class CaseTest {
                 for(Future<String> f:pool.invokeAll(tasks))f.get();check(new CsvFileManager(p).load().incidents().size()==12,"disk retained all");
             }finally{pool.shutdownNow();}
         });
+        test("Completed/pending report exports correct groups without contacts", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));RescueIncident i=m.report(normal());m.assign(i.id(),"A");
+            m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);m.updateStatus(i.id(),IncidentStatus.COMPLETED);m.report(normal());
+            Path p=CsvFileManager.exportReport(m.snapshot(),temporary());String text=Files.readString(p);List<List<String>> rows=Csv.parse(text);
+            check(rows.size()==3,"two rows");Set<String> groups=Set.of(rows.get(1).get(0),rows.get(2).get(0));
+            check(groups.containsAll(Set.of("COMPLETED","PENDING_ASSIGNMENT")),"groups");check(!text.contains("example@example.invalid"),"no contact exposure");
+        });
 
     }
 
