@@ -269,6 +269,12 @@ public final class CaseTest {
                 start.countDown();for(Future<?> f:futures)f.get();check(successes.get()==1 && m.snapshot().workload("A")==1,"one winner");
             }finally{pool.shutdownNow();}
         });
+        test("Concurrent persistent reports survive restart without loss", () -> {
+            Path p=temporary();IncidentManager m=new IncidentManager(new CsvFileManager(p));ExecutorService pool=Executors.newFixedThreadPool(4);
+            try{List<Callable<String>> tasks=new ArrayList<>();for(int i=0;i<12;i++)tasks.add(()->m.report(normal()).id());
+                for(Future<String> f:pool.invokeAll(tasks))f.get();check(new CsvFileManager(p).load().incidents().size()==12,"disk retained all");
+            }finally{pool.shutdownNow();}
+        });
 
     }
 
