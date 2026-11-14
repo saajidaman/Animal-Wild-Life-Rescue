@@ -287,7 +287,10 @@ public final class CaseTest {
             expect(UnsupportedOperationException.class,()->m.snapshot().incidents().clear());
             expect(UnsupportedOperationException.class,()->i.requiredSkills().clear());
         });
-
+        test("Unknown IDs fail cleanly", () -> {
+            IncidentManager m=manager();expect(ValidationException.class,()->m.incident("missing"));
+            expect(ValidationException.class,()->m.setOperational("missing",true));
+        });
     }
 
 }
