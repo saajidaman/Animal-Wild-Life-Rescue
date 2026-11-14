@@ -172,6 +172,14 @@ public final class CaseTest {
             check(m.snapshot().workload("A")==0,"released");
             check(m.snapshot().teams().get("A").status(0)==TeamStatus.AVAILABLE,"available");
         });
+        test("Invalid status skips, duplicate assignment and reopen rejected", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));RescueIncident i=m.report(normal());
+            expect(ValidationException.class, () -> m.updateStatus(i.id(),IncidentStatus.COMPLETED));m.assign(i.id(),"A");
+            expect(ValidationException.class, () -> m.assign(i.id(),"A"));
+            expect(ValidationException.class, () -> m.updateStatus(i.id(),IncidentStatus.COMPLETED));
+            m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);m.updateStatus(i.id(),IncidentStatus.COMPLETED);
+            expect(ValidationException.class, () -> m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS));
+        });
 
     }
 
