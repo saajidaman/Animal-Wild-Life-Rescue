@@ -227,6 +227,10 @@ public final class CaseTest {
             Path p=temporary();Files.writeString(p.resolve("CURRENT"),"../../elsewhere");expect(IOException.class, () -> new CsvFileManager(p).load());
             Files.writeString(p.resolve("CURRENT"),"snapshot-00000000-0000-0000-0000-000000000000");expect(IOException.class, () -> new CsvFileManager(p).load());
         });
+        test("Failed report save leaves memory unchanged", () -> {
+            MemoryRepository r=new MemoryRepository();IncidentManager m=new IncidentManager(r);r.fail=true;
+            expect(IOException.class, () -> m.report(normal()));check(m.incidents().isEmpty(),"rollback");
+        });
 
     }
 
