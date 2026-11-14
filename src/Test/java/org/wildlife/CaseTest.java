@@ -195,6 +195,16 @@ public final class CaseTest {
             check(Csv.parse("\uFEFFa,b\r\nc,d\r\n").size()==2,"BOM CRLF");
             check(Csv.parse("a,").get(0).equals(List.of("a","")),"trailing empty");
         });
+        test("Malformed CSV quotes rejected", () -> {
+            expect(IOException.class, () -> Csv.parse("\"open"));
+            expect(IOException.class, () -> Csv.parse("\"closed\"x,other"));
+            expect(IOException.class, () -> Csv.parse("bad\"quote"));
+        });
+        test("CSV bootstrap and snapshot restart preserve complete data", () -> {
+            Path p=temporary();bootstrap(p,sample());CsvFileManager repo=new CsvFileManager(p);State a=repo.load();repo.save(a);
+            State b=new CsvFileManager(p).load();check(CsvFileManager.incidentsCsv(a).equals(CsvFileManager.incidentsCsv(b)),"incidents");
+            check(CsvFileManager.teamsCsv(a).equals(CsvFileManager.teamsCsv(b)),"teams");
+        });
 
     }
 
