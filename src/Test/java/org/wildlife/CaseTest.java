@@ -152,6 +152,12 @@ public final class CaseTest {
             check(m.snapshot().workload("A")==2,"capacity respected");
         });
 
+        test("Higher-ranked compatible pending report blocks lower assignment", () -> {
+            IncidentManager m=manager();m.register(team("A",2,true));RescueIncident low=m.report(normal());
+            m.report(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,1,true));
+            expect(ValidationException.class, () -> m.assign(low.id(),"A"));
+        });
+
     }
 
 }
