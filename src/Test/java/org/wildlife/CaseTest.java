@@ -212,6 +212,11 @@ public final class CaseTest {
         test("Invalid CSV animal type rejected", () -> corruptIncident(1,"DRAGON"));
         test("Invalid CSV priority score and category rejected", () -> {corruptIncident(14,"99");corruptIncident(15,"CRITICAL");});
         test("Invalid CSV location and boolean rejected", () -> {corruptIncident(3,"");corruptIncident(8,"maybe");});
+        test("Wrong CSV header/field counts and missing file rejected", () -> {
+            Path p=temporary();bootstrap(p,sample());Files.writeString(p.resolve("teams.csv"),"wrong,header\n");expect(IOException.class, () -> new CsvFileManager(p).load());
+            bootstrap(p,sample());Files.writeString(p.resolve("incidents.csv"),Csv.encode(List.of(CsvFileManager.INCIDENT_HEADER,List.of("short"))));expect(IOException.class, () -> new CsvFileManager(p).load());
+            Files.delete(p.resolve("incidents.csv"));expect(IOException.class, () -> new CsvFileManager(p).load());
+        });
 
     }
 
