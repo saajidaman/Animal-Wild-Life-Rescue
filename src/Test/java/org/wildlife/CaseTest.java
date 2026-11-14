@@ -180,6 +180,10 @@ public final class CaseTest {
             m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);m.updateStatus(i.id(),IncidentStatus.COMPLETED);
             expect(ValidationException.class, () -> m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS));
         });
+        test("Team cannot become unavailable while active", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));m.assign(m.report(normal()).id(),"A");
+            expect(ValidationException.class, () -> m.setOperational("A",false));
+        });
 
     }
 
