@@ -231,6 +231,12 @@ public final class CaseTest {
             MemoryRepository r=new MemoryRepository();IncidentManager m=new IncidentManager(r);r.fail=true;
             expect(IOException.class, () -> m.report(normal()));check(m.incidents().isEmpty(),"rollback");
         });
+        test("Failed assignment/status save leaves assignment and capacity unchanged", () -> {
+            MemoryRepository r=new MemoryRepository();IncidentManager m=new IncidentManager(r);m.register(team("A",1,true));RescueIncident i=m.report(normal());r.fail=true;
+            expect(IOException.class, () -> m.assign(i.id(),"A"));check(m.snapshot().workload("A")==0,"assignment rollback");
+            r.fail=false;m.assign(i.id(),"A");m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);r.fail=true;
+            expect(IOException.class, () -> m.updateStatus(i.id(),IncidentStatus.COMPLETED));check(m.snapshot().workload("A")==1,"completion rollback");
+        });
 
     }
 
