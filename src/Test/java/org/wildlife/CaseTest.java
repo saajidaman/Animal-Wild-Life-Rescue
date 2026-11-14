@@ -254,6 +254,13 @@ public final class CaseTest {
             for(var result:results){threads.add(result.workerName());check(result.matches().equals(m.matches(result.incidentId())),"same matches");}
             check(results.size()==12 && threads.size()>1,"multiple workers");check(m.snapshot().workload("A")==0,"search is read-only");
         });
+        test("Concurrent report submissions do not lose IDs or records", () -> {
+            IncidentManager m=manager();ExecutorService pool=Executors.newFixedThreadPool(4);
+            try {List<Callable<String>> jobs=new ArrayList<>();for(int i=0;i<100;i++)jobs.add(()->m.report(normal()).id());
+                Set<String> ids=new HashSet<>();for(Future<String> f:pool.invokeAll(jobs))ids.add(f.get());
+                check(ids.size()==100 && m.incidents().size()==100,"all unique and retained");
+            }finally{pool.shutdownNow();}
+        });
 
     }
 
