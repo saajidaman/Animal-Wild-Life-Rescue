@@ -205,6 +205,10 @@ public final class CaseTest {
             State b=new CsvFileManager(p).load();check(CsvFileManager.incidentsCsv(a).equals(CsvFileManager.incidentsCsv(b)),"incidents");
             check(CsvFileManager.teamsCsv(a).equals(CsvFileManager.teamsCsv(b)),"teams");
         });
+        test("Duplicate incident IDs rejected on load", () -> {
+            Path p=temporary();bootstrap(p,sample());List<List<String>> rows=new ArrayList<>(Csv.parse(Files.readString(p.resolve("incidents.csv"))));
+            rows.add(rows.get(1));Files.writeString(p.resolve("incidents.csv"),Csv.encode(rows));expect(IOException.class, () -> new CsvFileManager(p).load());
+        });
 
     }
 
