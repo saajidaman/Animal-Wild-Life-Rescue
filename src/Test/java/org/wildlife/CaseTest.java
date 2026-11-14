@@ -209,8 +209,18 @@ public final class CaseTest {
             Path p=temporary();bootstrap(p,sample());List<List<String>> rows=new ArrayList<>(Csv.parse(Files.readString(p.resolve("incidents.csv"))));
             rows.add(rows.get(1));Files.writeString(p.resolve("incidents.csv"),Csv.encode(rows));expect(IOException.class, () -> new CsvFileManager(p).load());
         });
+        test("Invalid CSV animal type rejected", () -> corruptIncident(1,"DRAGON"));
 
     }
-
+    public static void main(String[] args) throws Exception {
+        Logger.getLogger("org.wildlife").setLevel(Level.OFF);
+        System.out.println("Regression test run: " + Instant.now() + " | Java " + System.getProperty("java.version"));
+        try { runTests(); System.out.println("RESULT: " + passed + " passed; 0 failed."); }
+        finally {
+            for (Path directory : TEMPORARIES) try (var paths = Files.walk(directory)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
 }
 
