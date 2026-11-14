@@ -248,6 +248,12 @@ public final class CaseTest {
             check(!old.equals(Files.readString(p.resolve("CURRENT"))),"generation changed");State loaded=new CsvFileManager(p).load();
             check(loaded.workload("A")==1 && loaded.teams().get("A").status(1)==TeamStatus.ASSIGNED,"coherent pair");
         });
+        test("Parallel searches equal sequential snapshot results and use workers", () -> {
+            IncidentManager m=manager();m.register(team("A",2,true));for(int i=0;i<12;i++)m.report(normal());
+            List<IncidentManager.SearchResult> results=m.searchPendingConcurrently();Set<String> threads=new HashSet<>();
+            for(var result:results){threads.add(result.workerName());check(result.matches().equals(m.matches(result.incidentId())),"same matches");}
+            check(results.size()==12 && threads.size()>1,"multiple workers");check(m.snapshot().workload("A")==0,"search is read-only");
+        });
 
     }
 
