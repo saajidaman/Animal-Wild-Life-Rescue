@@ -237,6 +237,11 @@ public final class CaseTest {
             r.fail=false;m.assign(i.id(),"A");m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);r.fail=true;
             expect(IOException.class, () -> m.updateStatus(i.id(),IncidentStatus.COMPLETED));check(m.snapshot().workload("A")==1,"completion rollback");
         });
+        test("Real filesystem write failure preserves bootstrap and memory", () -> {
+            Path p=temporary();bootstrap(p,sample());Files.writeString(p.resolve("snapshots"),"block directory creation");
+            IncidentManager m=new IncidentManager(new CsvFileManager(p));expect(IOException.class, () -> m.report(normal()));
+            check(m.incidents().size()==1,"memory");check(new CsvFileManager(p).load().incidents().size()==1,"disk");
+        });
 
     }
 
