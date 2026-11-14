@@ -151,7 +151,7 @@ public final class CaseTest {
             RescueIncident c=m.report(normal());expect(ValidationException.class, () -> m.assign(c.id(),"A"));
             check(m.snapshot().workload("A")==2,"capacity respected");
         });
-
+        //
         test("Higher-ranked compatible pending report blocks lower assignment", () -> {
             IncidentManager m=manager();m.register(team("A",2,true));RescueIncident low=m.report(normal());
             m.report(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,1,true));
@@ -183,6 +183,11 @@ public final class CaseTest {
         test("Team cannot become unavailable while active", () -> {
             IncidentManager m=manager();m.register(team("A",1,true));m.assign(m.report(normal()).id(),"A");
             expect(ValidationException.class, () -> m.setOperational("A",false));
+        });
+        test("Idle team availability can be changed", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));m.setOperational("A",false);
+            check(m.snapshot().teams().get("A").status(0)==TeamStatus.UNAVAILABLE,"disabled");m.setOperational("A",true);
+            check(m.snapshot().teams().get("A").operational(),"enabled");
         });
 
     }
