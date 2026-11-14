@@ -166,6 +166,12 @@ public final class CaseTest {
             IncidentManager m=manager();RescueIncident i=m.report(normal());check(m.matches(i.id()).isEmpty(),"empty");
             check(m.incident(i.id()).status()==IncidentStatus.PENDING_ASSIGNMENT,"pending retained");
         });
+        test("Valid lifecycle completes and releases capacity", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));RescueIncident i=m.report(normal());m.assign(i.id(),"A");
+            m.updateStatus(i.id(),IncidentStatus.IN_PROGRESS);m.updateStatus(i.id(),IncidentStatus.COMPLETED);
+            check(m.snapshot().workload("A")==0,"released");
+            check(m.snapshot().teams().get("A").status(0)==TeamStatus.AVAILABLE,"available");
+        });
 
     }
 
