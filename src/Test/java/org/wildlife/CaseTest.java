@@ -157,6 +157,11 @@ public final class CaseTest {
             m.report(request(AnimalType.BIRD,Condition.INJURED,Risk.HIGH,1,true));
             expect(ValidationException.class, () -> m.assign(low.id(),"A"));
         });
+        test("Incompatible critical report does not block available specialist", () -> {
+            IncidentManager m=manager();m.register(team("A",1,true));RescueIncident low=m.report(normal());
+            m.report(request(AnimalType.REPTILE,Condition.INJURED,Risk.HIGH,1,true));m.assign(low.id(),"A");
+            check(m.snapshot().workload("A")==1,"use specialist capacity");
+        });
 
     }
 
