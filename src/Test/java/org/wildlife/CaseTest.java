@@ -162,6 +162,10 @@ public final class CaseTest {
             m.report(request(AnimalType.REPTILE,Condition.INJURED,Risk.HIGH,1,true));m.assign(low.id(),"A");
             check(m.snapshot().workload("A")==1,"use specialist capacity");
         });
+        test("No match leaves incident pending", () -> {
+            IncidentManager m=manager();RescueIncident i=m.report(normal());check(m.matches(i.id()).isEmpty(),"empty");
+            check(m.incident(i.id()).status()==IncidentStatus.PENDING_ASSIGNMENT,"pending retained");
+        });
 
     }
 
