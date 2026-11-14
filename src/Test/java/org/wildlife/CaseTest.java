@@ -292,6 +292,15 @@ public final class CaseTest {
             expect(ValidationException.class,()->m.setOperational("missing",true));
         });
     }
-
+    public static void main(String[] args) throws Exception {
+        Logger.getLogger("org.wildlife").setLevel(Level.OFF);
+        System.out.println("Regression test run: " + Instant.now() + " | Java " + System.getProperty("java.version"));
+        try { runTests(); System.out.println("RESULT: " + passed + " passed; 0 failed."); }
+        finally {
+            for (Path directory : TEMPORARIES) try (var paths = Files.walk(directory)) {
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
 }
 
