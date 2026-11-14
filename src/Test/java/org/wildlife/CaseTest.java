@@ -217,6 +217,12 @@ public final class CaseTest {
             bootstrap(p,sample());Files.writeString(p.resolve("incidents.csv"),Csv.encode(List.of(CsvFileManager.INCIDENT_HEADER,List.of("short"))));expect(IOException.class, () -> new CsvFileManager(p).load());
             Files.delete(p.resolve("incidents.csv"));expect(IOException.class, () -> new CsvFileManager(p).load());
         });
+        test("Unknown assigned team and inconsistent team status rejected", () -> {
+            Path p=temporary();State s=sample();RescueIncident assigned=s.incidents().get("INC-ONE").assign("UNKNOWN");
+            bootstrap(p,new State(Map.of(assigned.id(),assigned),s.teams()));expect(IOException.class, () -> new CsvFileManager(p).load());
+            bootstrap(p,s);String text=Files.readString(p.resolve("teams.csv")).replace("AVAILABLE","ASSIGNED");Files.writeString(p.resolve("teams.csv"),text);
+            expect(IOException.class, () -> new CsvFileManager(p).load());
+        });
 
     }
 
